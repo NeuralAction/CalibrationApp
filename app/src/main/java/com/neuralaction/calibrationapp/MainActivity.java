@@ -3,7 +3,6 @@ package com.neuralaction.calibrationapp;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -24,24 +23,18 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.text.InputType;
+
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+
 import android.view.TextureView;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
-import android.widget.TextView;
-import android.widget.Toast;
-import com.neuralaction.calibrationapp.CameraHelper;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -447,7 +440,7 @@ public class MainActivity extends AppCompatActivity {
                         result.accumulate("File", path.getFileName());
                         result.accumulate("TimeStamp", df.format(startRecord));
                         result.accumulate("FPS", 30);
-                        result.put("ScrOriginX", Double.parseDouble(result.get("ScrMilliWidth").toString()) * camera_x.getProgress() / 100); // 70 * (700 / 1080 * 100)) / 100
+                        result.put("ScrOriginX", -(Double.parseDouble(result.get("ScrMilliWidth").toString()) * camera_x.getProgress() / 100));
                         result.accumulate("CalibPoints", CalibPoints);
 
                     } catch (JSONException e) {
