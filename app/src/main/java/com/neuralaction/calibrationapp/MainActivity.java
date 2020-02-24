@@ -439,6 +439,7 @@ public class MainActivity extends AppCompatActivity {
                         result.accumulate("User", username.getText());
                         result.accumulate("File", path.getFileName());
                         result.accumulate("TimeStamp", df.format(startRecord));
+                        result.accumulate("RotateAngle", 270);
                         result.accumulate("FPS", 30);
                         result.put("ScrOriginX", -(Double.parseDouble(result.get("ScrMilliWidth").toString()) * camera_x.getProgress() / 100));
                         result.accumulate("CalibPoints", CalibPoints);
