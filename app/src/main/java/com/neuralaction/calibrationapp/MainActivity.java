@@ -20,6 +20,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -212,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
             captureButton.setVisibility(View.INVISIBLE);
             calibrationarea.setVisibility(View.VISIBLE);
             new MediaPrepareTask().execute(null, null, null);
-
+            calibraionRun();
             // END_INCLUDE(prepare_start_media_recorder)
 
         }
@@ -355,5 +356,39 @@ public class MainActivity extends AppCompatActivity {
             // inform the user that recording has started
             setCaptureButtonText("Stop");
         }
+    }
+
+    final int delaytime = 2000;
+
+    int[] circles = {
+            R.id.circle1,
+            R.id.circle2,
+            R.id.circle3,
+            R.id.circle4,
+            R.id.circle5,
+            R.id.circle6,
+            R.id.circle7,
+            R.id.circle8,
+            R.id.circle9,
+            R.id.circle10,
+            R.id.circle11,
+            R.id.circle12,
+    };
+
+    public void circleCalibrateOn(final int order) {
+        new Handler().postDelayed(new Runnable()  {
+            public void run() {
+                findViewById(circles[order]).setVisibility(View.VISIBLE);
+                if(order >= 1) {
+                    findViewById(circles[order-1]).setVisibility(View.INVISIBLE);
+                }
+                if (order <= 10)
+                    circleCalibrateOn(order + 1);
+            }
+        }, delaytime);
+    }
+    public void calibraionRun() {
+        circleCalibrateOn(0);
+
     }
 }

@@ -78,6 +78,7 @@
                 android:text="⬤"
                 android:layout_weight="1"
                 android:gravity="center"
+                android:visibility="invisible"
                 android:textColor="#ff0000" />
 
             <TextView
@@ -86,6 +87,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="24dp"
                 android:text="⬤"
+                android:visibility="invisible"
                 android:gravity="center"
                 android:layout_weight="1"
                 android:textColor="#ff0000" />
@@ -96,6 +98,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="24dp"
                 android:text="⬤"
+                android:visibility="invisible"
                 android:gravity="bottom"
                 android:layout_weight="1"
                 android:textColor="#ff0000" />
@@ -117,6 +120,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="24dp"
                 android:text="⬤"
+                android:visibility="invisible"
                 android:layout_weight="1"
                 android:textColor="#ff0000" />
 
@@ -126,6 +130,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="24dp"
                 android:text="⬤"
+                android:visibility="invisible"
                 android:layout_weight="1"
                 android:gravity="center"
                 android:textColor="#ff0000" />
@@ -136,6 +141,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="24dp"
                 android:text="⬤"
+                android:visibility="invisible"
                 android:layout_weight="1"
                 android:gravity="center"
                 android:textColor="#ff0000" />
@@ -146,6 +152,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="24dp"
                 android:text="⬤"
+                android:visibility="invisible"
                 android:layout_weight="1"
                 android:gravity="bottom"
                 android:textColor="#ff0000" />
@@ -166,6 +173,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="24dp"
                 android:text="⬤"
+                android:visibility="invisible"
                 android:layout_weight="1"
                 android:textColor="#ff0000" />
 
@@ -175,6 +183,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="24dp"
                 android:text="⬤"
+                android:visibility="invisible"
                 android:gravity="center"
                 android:layout_weight="1"
                 android:textColor="#ff0000" />
@@ -185,6 +194,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="24dp"
                 android:text="⬤"
+                android:visibility="invisible"
                 android:gravity="center"
                 android:layout_weight="1"
                 android:textColor="#ff0000" />
@@ -195,6 +205,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="24dp"
                 android:text="⬤"
+                android:visibility="invisible"
                 android:layout_weight="1"
                 android:gravity="bottom"
                 android:textColor="#ff0000" />
