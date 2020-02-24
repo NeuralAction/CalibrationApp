@@ -14,9 +14,192 @@
     <Button
         android:id="@+id/btn_record"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="75dp"
         android:layout_gravity="bottom"
         android:onClick="onCaptureClick"
+        android:text="Start calibration"
+        android:enabled="false"
         />
+
+
+    <LinearLayout
+        android:id="@+id/inst"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="1. Set the seekbar(top of screen) to the camera.
+            \n2. When you touch the 'START CALIBRATION' button, you should focus to the point that looks like the red circle."
+            android:textColor="#444" />
+    </LinearLayout>
+
+    <!-- row 2 -->
+
+    <LinearLayout
+        android:id="@+id/calibraionarea"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:visibility="invisible"
+        android:weightSum="3" >
+
+        <!-- col 1 -->
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/circle1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24dp"
+                android:text="⬤"
+                android:layout_weight="1"
+                android:textColor="#ff0000" />
+
+            <TextView
+                android:id="@+id/circle2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24dp"
+                android:text="⬤"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="#ff0000" />
+
+            <TextView
+                android:id="@+id/circle3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24dp"
+                android:text="⬤"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:textColor="#ff0000" />
+
+            <TextView
+                android:id="@+id/circle4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24dp"
+                android:text="⬤"
+                android:gravity="bottom"
+                android:layout_weight="1"
+                android:textColor="#ff0000" />
+
+        </LinearLayout>
+        <!-- col 1 end -->
+        <!-- col 2 -->
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/circle5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24dp"
+                android:text="⬤"
+                android:layout_weight="1"
+                android:textColor="#ff0000" />
+
+            <TextView
+                android:id="@+id/circle6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24dp"
+                android:text="⬤"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="#ff0000" />
+
+            <TextView
+                android:id="@+id/circle7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24dp"
+                android:text="⬤"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="#ff0000" />
+
+            <TextView
+                android:id="@+id/circle8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24dp"
+                android:text="⬤"
+                android:layout_weight="1"
+                android:gravity="bottom"
+                android:textColor="#ff0000" />
+        </LinearLayout>
+        <!-- col 2 end -->
+        <!-- col 3 -->
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/circle9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24dp"
+                android:text="⬤"
+                android:layout_weight="1"
+                android:textColor="#ff0000" />
+
+            <TextView
+                android:id="@+id/circle10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24dp"
+                android:text="⬤"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:textColor="#ff0000" />
+
+            <TextView
+                android:id="@+id/circle11"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24dp"
+                android:text="⬤"
+                android:gravity="center"
+                android:layout_weight="1"
+                android:textColor="#ff0000" />
+
+            <TextView
+                android:id="@+id/circle12"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24dp"
+                android:text="⬤"
+                android:layout_weight="1"
+                android:gravity="bottom"
+                android:textColor="#ff0000" />
+        </LinearLayout>
+    </LinearLayout>
+    <!-- col 3 end -->
 
 </FrameLayout>

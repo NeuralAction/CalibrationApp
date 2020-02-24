@@ -31,6 +31,9 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.neuralaction.calibrationapp.CameraHelper;
 import java.io.File;
@@ -48,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "Recorder";
     private Button captureButton;
 
+    LinearLayout inst;
+    LinearLayout calibrationarea;
+    SeekBar camera_x;
 
     int PERMISSION_ALL = 1;
     String[] PERMISSIONS = {
@@ -62,9 +68,25 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        inst = findViewById(R.id.inst);
+        calibrationarea = findViewById(R.id.calibraionarea);
+        camera_x = findViewById(R.id.seekBar);
         mPreview = findViewById(R.id.CameraView);
         captureButton = findViewById(R.id.btn_record);
+
+        camera_x.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                captureButton.setEnabled(true);
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                captureButton.setEnabled(true);
+            }
+
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                captureButton.setEnabled(true);
+            }
+        });
 
         if (!hasPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
@@ -185,7 +207,10 @@ public class MainActivity extends AppCompatActivity {
         } else {
 
             // BEGIN_INCLUDE(prepare_start_media_recorder)
-
+            inst.setVisibility(View.INVISIBLE);
+            camera_x.setVisibility(View.INVISIBLE);
+            captureButton.setVisibility(View.INVISIBLE);
+            calibrationarea.setVisibility(View.VISIBLE);
             new MediaPrepareTask().execute(null, null, null);
 
             // END_INCLUDE(prepare_start_media_recorder)
