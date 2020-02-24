@@ -31,16 +31,34 @@
         <SeekBar
             android:id="@+id/seekBar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:max="100" />
+
+        <EditText
+            android:id="@+id/username"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_margin="20dp"
+            android:hint="What is your name?"/>
+
+        <EditText
+            android:id="@+id/serverinfo"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_margin="20dp"
+            android:hint="Server (ex. http:127.0.0.1:8080)"/>
 
         <TextView
             android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="20dp"
             android:text="1. Set the seekbar(top of screen) to the camera.
-            \n2. When you touch the 'START CALIBRATION' button, you should focus to the point that looks like the red circle."
+            \n2. Write your name in the Textbox
+            \n3. Write server host in the Textbox
+            \n4. When you touch the 'START CALIBRATION' button, you should focus to the point that looks like the red circle."
             android:textColor="#444" />
+
     </LinearLayout>
 
     <!-- row 2 -->

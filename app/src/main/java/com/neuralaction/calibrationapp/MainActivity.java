@@ -5,11 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
@@ -21,6 +23,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.SystemClock;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -32,13 +36,21 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.neuralaction.calibrationapp.CameraHelper;
+
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -65,16 +77,37 @@ public class MainActivity extends AppCompatActivity {
 
 
     JSONObject result;
+    JSONArray CalibPoints;
+
+    Date startRecord;
+
+    private long startHTime = 0L;
+
+    SimpleDateFormat df;
+
+    Point size;
+
+    EditText username;
+    EditText serverinfo;
+
+    String videofile;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Display display = getWindowManager().getDefaultDisplay();
+        size = new Point();
+        display.getSize(size);
         inst = findViewById(R.id.inst);
         calibrationarea = findViewById(R.id.calibraionarea);
         camera_x = findViewById(R.id.seekBar);
         mPreview = findViewById(R.id.CameraView);
         captureButton = findViewById(R.id.btn_record);
-
+        CalibPoints = new JSONArray();
+        username = findViewById(R.id.username);
+        serverinfo = findViewById(R.id.serverinfo);
+        df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         camera_x.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onStopTrackingTouch(SeekBar seekBar) {
                 captureButton.setEnabled(true);
@@ -132,40 +165,32 @@ public class MainActivity extends AppCompatActivity {
         double mHeightPixels = dm.heightPixels;
 
         // includes window decorations (statusbar bar/menu bar)
-        if (Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 17)
-        {
-            try
-            {
+        if (Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 17) {
+            try {
                 mWidthPixels = (Integer) Display.class.getMethod("getRawWidth").invoke(display);
                 mHeightPixels = (Integer) Display.class.getMethod("getRawHeight").invoke(display);
-            }
-            catch (Exception ignored)
-            {
+            } catch (Exception ignored) {
             }
         }
 
         // includes window decorations (statusbar bar/menu bar)
-        if (Build.VERSION.SDK_INT >= 17)
-        {
-            try
-            {
+        if (Build.VERSION.SDK_INT >= 17) {
+            try {
                 Point realSize = new Point();
                 Display.class.getMethod("getRealSize", Point.class).invoke(display, realSize);
                 mWidthPixels = realSize.x;
                 mHeightPixels = realSize.y;
-            }
-            catch (Exception ignored)
-            {
+            } catch (Exception ignored) {
             }
         }
 
-        double x = Math.pow(mWidthPixels/dm.xdpi,2);
-        double y = Math.pow(mHeightPixels/dm.ydpi,2);
+        double x = Math.pow(mWidthPixels / dm.xdpi, 2);
+        double y = Math.pow(mHeightPixels / dm.ydpi, 2);
 
         JSONObject deviceInfo = new JSONObject();
 
-        deviceInfo.accumulate("ScrMilliWidth", x);
-        deviceInfo.accumulate("ScrMilliHeight", size.y / (size.x / x));
+        deviceInfo.accumulate("ScrMilliWidth", x*10);
+        deviceInfo.accumulate("ScrMilliHeight", (size.y / (size.x / x))*10);
         deviceInfo.accumulate("ScrPixelWidth", size.x);
         deviceInfo.accumulate("ScrPixelHeight", size.y);
         deviceInfo.accumulate("ScrOriginX", 1);
@@ -174,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
 
         return deviceInfo;
     }
+
     /**
      * The capture button controls all user interaction. When recording, the button click
      * stops recording, releases {@link android.media.MediaRecorder} and
@@ -211,8 +237,11 @@ public class MainActivity extends AppCompatActivity {
             inst.setVisibility(View.INVISIBLE);
             camera_x.setVisibility(View.INVISIBLE);
             captureButton.setVisibility(View.INVISIBLE);
+            username.setVisibility(View.INVISIBLE);
+            serverinfo.setVisibility(View.INVISIBLE);
             calibrationarea.setVisibility(View.VISIBLE);
             new MediaPrepareTask().execute(null, null, null);
+            startRecord = new Date();
             calibraionRun();
             // END_INCLUDE(prepare_start_media_recorder)
 
@@ -300,13 +329,15 @@ public class MainActivity extends AppCompatActivity {
 
         // Step 3: Set a CamcorderProfile (requires API Level 8 or higher)
         mMediaRecorder.setProfile(profile);
+        mMediaRecorder.setVideoFrameRate(30);
 
         // Step 4: Set output file
         mOutputFile = CameraHelper.getOutputMediaFile(CameraHelper.MEDIA_TYPE_VIDEO);
         if (mOutputFile == null) {
             return false;
         }
-        mMediaRecorder.setOutputFile(mOutputFile.getPath());
+        videofile = mOutputFile.getPath();
+        mMediaRecorder.setOutputFile(videofile);
 
         mMediaRecorder.setOrientationHint(270);
         // END_INCLUDE (configure_media_recorder)
@@ -338,6 +369,7 @@ public class MainActivity extends AppCompatActivity {
             if (prepareVideoRecorder()) {
                 // Camera is available and unlocked, MediaRecorder is prepared,
                 // now you can start recording
+                startHTime = SystemClock.uptimeMillis();
                 mMediaRecorder.start();
                 isRecording = true;
             } else {
@@ -358,7 +390,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    final int delaytime = 2000;
+    final int delaytime = 3000;
 
     int[] circles = {
             R.id.circle1,
@@ -376,19 +408,108 @@ public class MainActivity extends AppCompatActivity {
     };
 
     public void circleCalibrateOn(final int order) {
-        new Handler().postDelayed(new Runnable()  {
+        new Handler().postDelayed(new Runnable() {
             public void run() {
-                findViewById(circles[order]).setVisibility(View.VISIBLE);
-                if(order >= 1) {
-                    findViewById(circles[order-1]).setVisibility(View.INVISIBLE);
+
+                if (order >= 1) {
+                    findViewById(circles[order - 1]).setVisibility(View.INVISIBLE);
                 }
-                if (order <= 10)
+                if (order <= 11) {
+                    try {
+                        saveCalibrationInfo(order);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    findViewById(circles[order]).setVisibility(View.VISIBLE);
                     circleCalibrateOn(order + 1);
-            }
+                }
+
+                if (order == 12) {
+                    try {
+                        mMediaRecorder.stop();  // stop the recording
+                    } catch (RuntimeException e) {
+                        // RuntimeException is thrown when stop() is called immediately after start().
+                        // In this case the output file is not properly constructed ans should be deleted.
+                        Log.d(TAG, "RuntimeException: stop() is called immediately after start()");
+                        //noinspection ResultOfMethodCallIgnored
+                        mOutputFile.delete();
+                    }
+                    releaseMediaRecorder(); // release the MediaRecorder object
+                    mCamera.lock();         // take camera access back from MediaRecorder
+
+                    // inform the user that recording has stopped
+                    setCaptureButtonText("Capture");
+                    isRecording = false;
+                    Path path = Paths.get(videofile);
+                    releaseCamera();
+                    try {
+                        result.accumulate("User", username.getText());
+                        result.accumulate("File", path.getFileName());
+                        result.accumulate("TimeStamp", df.format(startRecord));
+                        result.accumulate("FPS", 30);
+                        result.put("ScrOriginX", Double.parseDouble(result.get("ScrMilliWidth").toString()) * camera_x.getProgress() / 100); // 70 * (700 / 1080 * 100)) / 100
+                        result.accumulate("CalibPoints", CalibPoints);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                        alertDialog.setTitle("Cablibration Info");
+                        alertDialog.setMessage(result.toString());
+                        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Complete",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                try {
+                                    BufferedWriter buf = new BufferedWriter(new FileWriter(Environment.getExternalStorageDirectory().getAbsolutePath()+"/test.json", true));
+                                    buf.append(result.toString()); // 날짜 쓰기
+                                    buf.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                        alertDialog.show();
+                    }
+                }
         }, delaytime);
     }
+
     public void calibraionRun() {
         circleCalibrateOn(0);
+    }
 
+    public void saveCalibrationInfo(int order) throws JSONException {
+        final int[] location = new int[2];
+        findViewById(circles[order]).getLocationOnScreen(location);
+
+        if (order == 1 || order == 2 || order == 5 || order == 6 || order == 9 || order == 10)
+            location[1] += (findViewById(circles[order]).getHeight() / 2);
+        if (order == 3 || order == 7 || order == 11)
+            location[1] += findViewById(circles[order]).getHeight();
+        if(order==4||order==5||order==6||order==7)
+            location[0] += (findViewById(circles[order]).getWidth() / 2);
+        if(order==8||order==9||order==10||order==11)
+            location[0] += findViewById(circles[order]).getWidth();
+
+        saveCalibrationMultiple(location[0], location[1], 0);
+    }
+
+    public void saveCalibrationMultiple(final int x, final int y, final int i) {
+        if (i < 3) {
+            new Handler().postDelayed(new Runnable() {
+                public void run() {
+                    try {
+                        JSONObject calibcircle = new JSONObject();
+                        calibcircle.accumulate("Millisecond", SystemClock.uptimeMillis() - startHTime);
+                        calibcircle.accumulate("ScrPixelX", x);
+                        calibcircle.accumulate("ScrPixelY", y);
+                        CalibPoints.put(calibcircle);
+                        saveCalibrationMultiple(x,y,i+1);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }, 300);
+        }
     }
 }
