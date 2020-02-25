@@ -41,8 +41,9 @@ import android.widget.SeekBar;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
+import com.android.volley.error.VolleyError;
+import com.android.volley.request.SimpleMultiPartRequest;
+import com.android.volley.request.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import java.io.BufferedWriter;
@@ -95,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
 
     String videofile;
 
-    RequestQueue queue;
     String serverurl;
 
 
@@ -116,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
         username = findViewById(R.id.username);
         serverinfo = findViewById(R.id.serverinfo);
         df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        queue = Volley.newRequestQueue(this);
         camera_x.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onStopTrackingTouch(SeekBar seekBar) {
                 captureButton.setEnabled(true);
@@ -213,25 +212,26 @@ public class MainActivity extends AppCompatActivity {
 
         serverurl = ((EditText) findViewById(R.id.serverinfo)).getText().toString();
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, serverurl+"/test",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-                        alertDialog.setTitle("ServerTest");
-                        try {
-                            alertDialog.setMessage(new JSONObject(response).getString("message"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Complete",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                    }
-                                });
-                        alertDialog.show();
-                    }
-                }, new Response.ErrorListener() {
+        RequestQueue mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, serverurl+"/test", new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                alertDialog.setTitle("ServerTest");
+                try {
+                    alertDialog.setMessage(new JSONObject(response).getString("message"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Complete",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        });
+                alertDialog.show();
+            }
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        queue.add(stringRequest);
+        mRequestQueue.add(stringRequest);
     }
 
     /**
@@ -284,11 +284,9 @@ public class MainActivity extends AppCompatActivity {
 
             // BEGIN_INCLUDE(prepare_start_media_recorder)
             inst.setVisibility(View.INVISIBLE);
-            camera_x.setVisibility(View.INVISIBLE);
             captureButton.setVisibility(View.INVISIBLE);
-            username.setVisibility(View.INVISIBLE);
-            serverinfo.setVisibility(View.INVISIBLE);
             calibrationarea.setVisibility(View.VISIBLE);
+
             new MediaPrepareTask().execute(null, null, null);
             startRecord = new Date();
             calibraionRun();
@@ -493,6 +491,7 @@ public class MainActivity extends AppCompatActivity {
                     releaseCamera();
                     MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                     retriever.setDataSource(new File(videofile).toString());
+                    serverurl = ((EditText) findViewById(R.id.serverinfo)).getText().toString();
                     double allframe = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT));
                     double time = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
                     try {
@@ -517,6 +516,46 @@ public class MainActivity extends AppCompatActivity {
                                     BufferedWriter buf = new BufferedWriter(new FileWriter(path.toString().replace(".mp4", ".json"), true));
                                     buf.append(result.toString());
                                     buf.close();
+
+                                    SimpleMultiPartRequest smr = new SimpleMultiPartRequest(Request.Method.POST, serverurl+"/upload",
+                                            new Response.Listener<String>() {
+                                                @Override
+                                                public void onResponse(String response) {
+                                                    Log.d("Response", response);
+                                                    RequestQueue mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+                                                    SimpleMultiPartRequest smr2 = new SimpleMultiPartRequest(Request.Method.POST, serverurl+"/upload",
+                                                            new Response.Listener<String>() {
+                                                                @Override
+                                                                public void onResponse(String response) {
+                                                                    AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                                                                    alertDialog.setTitle("Calibration Complete");
+                                                                    alertDialog.setMessage("Calibration is complete. If you want to try to calibrate again, Kill the app in the background and relaunch the application (Same name please)");
+                                                                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Complete",
+                                                                            new DialogInterface.OnClickListener() {
+                                                                                public void onClick(DialogInterface dialog, int which) {
+                                                                                }
+                                                                            });
+                                                                    alertDialog.show();
+                                                                    Log.d("Response", response);
+                                                                }
+                                                            }, new Response.ErrorListener() {
+                                                        @Override
+                                                        public void onErrorResponse(VolleyError error) {
+                                                        }
+                                                    });
+                                                    smr2.addFile("file", path.toString().replace(".mp4", ".json"));
+                                                    mRequestQueue.add(smr2);
+                                                }
+                                            }, new Response.ErrorListener() {
+                                                @Override
+                                                public void onErrorResponse(VolleyError error) {
+                                                }
+                                    });
+                                    smr.addFile("file", path.toString());
+
+                                    RequestQueue mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+                                    mRequestQueue.add(smr);
+
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
