@@ -16,7 +16,9 @@ import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.graphics.Point;
 import android.media.CamcorderProfile;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -291,9 +293,9 @@ public class MainActivity extends AppCompatActivity {
                 mSupportedPreviewSizes, mPreview.getWidth(), mPreview.getHeight());
 
         // Use the same size for recording profile.
-        CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
-        profile.videoFrameWidth = optimalSize.width;
-        profile.videoFrameHeight = optimalSize.height;
+        CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_1080P);
+//        profile.videoFrameWidth = optimalSize.width;
+//        profile.videoFrameHeight = optimalSize.height;
 
         // likewise for the camera object itself.
         parameters.setPreviewSize(profile.videoFrameWidth, profile.videoFrameHeight);
@@ -433,14 +435,18 @@ public class MainActivity extends AppCompatActivity {
                     // inform the user that recording has stopped
                     setCaptureButtonText("Capture");
                     isRecording = false;
-                    Path path = Paths.get(videofile);
+                    final Path path = Paths.get(videofile);
                     releaseCamera();
+                    MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+                    retriever.setDataSource(new File(videofile).toString());
+                    double allframe = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT));
+                    double time = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
                     try {
                         result.accumulate("User", username.getText());
                         result.accumulate("File", path.getFileName());
                         result.accumulate("TimeStamp", df.format(startRecord));
                         result.accumulate("RotateAngle", 270);
-                        result.accumulate("FPS", 30);
+                        result.accumulate("FPS", allframe / (time / 1000));
                         result.put("ScrOriginX", -(Double.parseDouble(result.get("ScrMilliWidth").toString()) * camera_x.getProgress() / 100));
                         result.accumulate("CalibPoints", CalibPoints);
 
@@ -454,8 +460,8 @@ public class MainActivity extends AppCompatActivity {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 try {
-                                    BufferedWriter buf = new BufferedWriter(new FileWriter(Environment.getExternalStorageDirectory().getAbsolutePath()+"/test.json", true));
-                                    buf.append(result.toString()); // 날짜 쓰기
+                                    BufferedWriter buf = new BufferedWriter(new FileWriter(path.toString().replace(".mp4", ".json"), true));
+                                    buf.append(result.toString());
                                     buf.close();
                                 } catch (IOException e) {
                                     e.printStackTrace();
