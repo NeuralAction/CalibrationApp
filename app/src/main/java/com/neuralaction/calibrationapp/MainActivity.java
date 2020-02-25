@@ -38,6 +38,13 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -67,7 +74,8 @@ public class MainActivity extends AppCompatActivity {
     String[] PERMISSIONS = {
             Manifest.permission.CAMERA,
             Manifest.permission.RECORD_AUDIO,
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.INTERNET
     };
 
 
@@ -87,6 +95,11 @@ public class MainActivity extends AppCompatActivity {
 
     String videofile;
 
+    RequestQueue queue;
+    String serverurl;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
         username = findViewById(R.id.username);
         serverinfo = findViewById(R.id.serverinfo);
         df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        queue = Volley.newRequestQueue(this);
         camera_x.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onStopTrackingTouch(SeekBar seekBar) {
                 captureButton.setEnabled(true);
@@ -193,6 +207,46 @@ public class MainActivity extends AppCompatActivity {
         deviceInfo.accumulate("ScrOriginZ", 0);
 
         return deviceInfo;
+    }
+
+    public void onServerTest(View view) {
+
+        serverurl = ((EditText) findViewById(R.id.serverinfo)).getText().toString();
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, serverurl+"/test",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                        alertDialog.setTitle("ServerTest");
+                        try {
+                            alertDialog.setMessage(new JSONObject(response).getString("message"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Complete",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                    }
+                                });
+                        alertDialog.show();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                alertDialog.setTitle("ServerTest");
+                alertDialog.setMessage("SERVER CONNECTION ERROR\n"+ error.toString());
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Complete",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        });
+                alertDialog.show();
+            }
+        });
+
+        queue.add(stringRequest);
     }
 
     /**

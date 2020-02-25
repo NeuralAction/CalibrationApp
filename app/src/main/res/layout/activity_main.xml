@@ -37,16 +37,26 @@
         <EditText
             android:id="@+id/username"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="60dp"
             android:layout_margin="20dp"
             android:hint="What is your name?"/>
 
         <EditText
             android:id="@+id/serverinfo"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="60dp"
             android:layout_margin="20dp"
             android:hint="Server (ex. http:127.0.0.1:8080)"/>
+
+        <Button
+            android:id="@+id/server_test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginRight="20dp"
+            android:onClick="onServerTest"
+            android:text="SERVER TEST"
+            />
 
         <TextView
             android:id="@+id/textView"
@@ -56,6 +66,7 @@
             android:text="1. Set the seekbar(top of screen) to the camera.
             \n2. Write your name in the Textbox
             \n3. Write server host in the Textbox
+            \n4. Touch the 'SERVER TEST' Button. If you don't connect the server, the data will not be upload in the server.
             \n4. When you touch the 'START CALIBRATION' button, you should focus to the point that looks like the red circle."
             android:textColor="#444" />
 
